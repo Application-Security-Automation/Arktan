@@ -1,0 +1,8 @@
+{
+    "enableLeadingComments": false,
+    "ignoreFileNames": [
+        "oh_modules",
+        "node_modules",
+        "hvigorfile.ts"
+    ]
+}
