@@ -1,0 +1,12 @@
+import { taint } from "../../../../pages/taint"
+/**
+ * Introduction 循环结构-for
+ */
+
+export function for_003_T(taint_src : string) {
+  let res = ""
+  let i = 0
+  for (res = taint_src; i < 1; i++) {
+    taint.Sink(res)
+  }
+}
