@@ -1,0 +1,30 @@
+sources:
+  - { kind: call, method: "@ptatest/entry/src/main/ets/pages/taint.ets: taint.genSource() : string", index: result }
+  - { kind: param, method: "@ptatest/entry/src/main/ets/pages/taint.ets: taint.Source(string) : string", index: 0 }
+  # - { kind: param, method: "@ptatest/entry/src/main/ets/dataset/completeness/object_tracing/datatype/primitives/primitives_number_001_T.ets: primitives_number_001_T.[static]primitives_number_001_T(number) : void", index: 0 }
+  # - { kind: param, method: "@ptatest/entry/src/main/ets/dataset/completeness/object_tracing/datatype/primitives/primitives_number_002_F.ets: primitives_number_002_F.[static]primitives_number_002_F(number) : void", index: 0 }
+
+sinks:
+  - {method: "@ptatest/entry/src/main/ets/pages/taint.ets: taint.[static]Sink(number|string|boolean|@ES2015/BuiltinClass: Object) : void", index: 0}
+  - {method: "@test/entry/src/main/ets/pages/test.ets: %dflt.Sink(string) : string", index: 0}
+
+transfers:
+  # - { method: "@ptatest/lib/lib.es5.d.ts: String.concat(string[]) : string", from: base, to: result }
+  # - { method: "@ptatest/lib/lib.es5.d.ts: String.concat(string[]) : string", from: 0, to: result }
+  # - { method: "@ptatest/lib/lib.es5.d.ts: String.toString() : string", from: base, to: result }
+  # - { method: "@ptatest/lib/lib.es5.d.ts: String.valueOf() : string", from: base, to: result }
+  # - { method: "@ptatest/lib/lib.es5.d.ts: String.replace(string|RegExp, string) : string", from: base, to: result }
+  # - { method: "@ptatest/lib/lib.es5.d.ts: String.slice(number, number) : string", from: base, to: result }
+  # - { method: "@ptatest/lib/lib.es5.d.ts: String.substring(number, number) : string", from: base, to: result }
+  # - { method: "@ptatest/lib/lib.es5.d.ts: String.split(string|RegExp, number) : string", from: base, to: result }
+  # - { method: "@ptatest/lib/lib.es5.d.ts: String.trim() : string", from: base, to: result }
+  # - { method: "@ptatest/lib/lib.es5.d.ts: String.toUpperCase() : string", from: base, to: result }
+  # - { method: "@ptatest/lib/lib.es5.d.ts: String.toLowerCase() : string", from: base, to: result }
+  # - { method: "@ptatest/lib/lib.es2015.collection.d.ts: Map.set(K, V) : ThisType", from: 1, to: base }
+  # - { method: "@ptatest/lib/lib.es2015.collection.d.ts: Map.get(K) : V|undefined", from: base, to: result }
+  # - { method: "@ptatest/lib/lib.es2015.collection.d.ts: Set.add(T) : ThisType", from: 0, to: base }
+  - { method: "@ptatest/lib/lib.es5.d.ts: Array.toString() : string", from: base, to: result }
+  - { method: "@ptatest/lib/lib.es5.d.ts: Array.pop() : T|undefined", from: base, to: result }
+  - { method: "@ptatest/lib/lib.es5.d.ts: Array.push(T[]) : number", from: 0, to: base }
+  - { method: "@ptatest/lib/lib.es5.d.ts: Array.shift() : T|undefined", from: base, to: result }
+  - { method: "@test/lib/lib.es5.d.ts: JSON.stringify(any, @test/lib/lib.es5.d.ts: JSON.%AM1(any, string, any) : any, string|number) : string", from: 0, to: result }

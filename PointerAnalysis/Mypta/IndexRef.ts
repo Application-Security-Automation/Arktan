@@ -1,0 +1,9 @@
+export class IndexRef {
+    private index : number;
+    constructor(index: number) {
+        this.index = index;
+    }
+    getIndex() : number {
+        return this.index;
+    }
+}
