@@ -1,8 +1,10 @@
-**P-taintAnalysis4ArkTS**
+**Arktan**
 
 本项目基于OpenHarmony中的开源项目Arkanalyzer设计的针对ArkTS应用的指针分析及污点分析。
 用户可以通过设置污点配置文件（PointerAnalysis/Mypta/config/taint_config.yml）对ArkTS项目进行污点分析。
 本项目还设计了类似于Tai-e分析框架的插件系统，用户可以通过添加插件完成特定的分析任务。
+
+整个项目有typescript编写，因此运行项目需要安装nodejs以及ts-node依赖 
 
 项目入口文件为PointerAnalysis/MyptaStart.ts，用户设置文件中的ArkTS项目目录即可进行项目分析。
 
