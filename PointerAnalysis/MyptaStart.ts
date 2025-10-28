@@ -10,7 +10,7 @@ let sdk: Sdk = {
 };
 let config: SceneConfig = new SceneConfig()
 function run() {
-    let projectdir: string = ""; // arkts项目目录
+    let projectdir: string = "/Users/sevencold/Study/ArkTS_project/ptatest"; // arkts项目目录
     config.buildFromProjectDir(projectdir);
     config.getSdksObj().push(sdk);
     let projectScene: Scene = new Scene();
