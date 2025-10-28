@@ -42,7 +42,7 @@ export class MyPointerAnalysis {
         this.cg = new CallGraph(this.ptrManager);
         this.entryPoints = new Array();
         this.plugin = new PluginManager();
-        this.config = new TaintConfig(s,"./PointerAnalysis/Mypta/config/taint_config.yml");
+        this.config = new TaintConfig(s,"./Mypta/config/taint_config.yml");
         this.specialInvokeStmt = new Array();
     }
     start() {
