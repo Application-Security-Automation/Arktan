@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { execSync } from 'child_process';
 
 interface DifyWorkflowResponse {
   data: {
@@ -20,9 +21,31 @@ export class DifyWorkflowClient {
     this.baseURL = baseURL;
   }
 
-  async invokeWorkflow(): Promise<DifyWorkflowResponse> {
+  // 同步调用方法
+  invokeWorkflowSync(methodsignature: string): DifyWorkflowResponse | null {
     try {
-      const inputs = {}
+      const inputs = {"input" : methodsignature}
+      const user = "user-1234";
+      const postData = JSON.stringify({
+        inputs,
+        user,
+        response_mode: 'blocking'
+      });
+      
+      // 使用curl命令进行同步HTTP请求
+      const curlCommand = `curl -X POST "${this.baseURL}/workflows/run" -H "Authorization: Bearer ${this.apiKey}" -H "Content-Type: application/json" -d '${postData}'`;
+      
+      const response = execSync(curlCommand, { encoding: 'utf8' });
+      return JSON.parse(response);
+    } catch (error) {
+      console.error('调用 Dify 工作流失败:', error);
+      return null;
+    }
+  }
+  
+  async invokeWorkflow(methodsignature: string): Promise<DifyWorkflowResponse> {
+    try {
+      const inputs = {"input" : methodsignature}
       const user = "user-1234";
       const response = await axios.post(
         `${this.baseURL}/workflows/run`,
@@ -47,10 +70,10 @@ export class DifyWorkflowClient {
   }
 }
 
-let difyClient: DifyWorkflowClient | null = new DifyWorkflowClient("app-KRXVPDTeeG08AHR84O579DiW");
-difyClient.invokeWorkflow().then((response) => {
-    const output = response;
-    console.log('Workflow Output:', output);
-}).catch((error) => {
-    console.error('Error invoking workflow:', error);
-});
+// let difyClient: DifyWorkflowClient | null = new DifyWorkflowClient("app-KRXVPDTeeG08AHR84O579DiW");
+// difyClient.invokeWorkflow().then((response) => {
+//     const output = response;
+//     console.log('Workflow Output:', output);
+// }).catch((error) => {
+//     console.error('Error invoking workflow:', error);
+// });

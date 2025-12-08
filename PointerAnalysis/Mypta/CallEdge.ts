@@ -5,8 +5,8 @@ import { Edge } from "./Edge";
 export class CallEdge implements Edge{
     private CallKind : String;
     private callsite : CallSite;
-    private callee : ArkMethod;
-    constructor(kind: String, callsite: CallSite, callee: ArkMethod) {
+    private callee? : ArkMethod;
+    constructor(kind: String, callsite: CallSite, callee?: ArkMethod) {
         this.CallKind = kind;
         this.callsite = callsite;
         this.callee = callee;

@@ -50,14 +50,19 @@ export class CallGraph {
     addEdge(calledge : CallEdge) : boolean {
         if(!this.callSiteToEdges.has(calledge.getCallSite())) {
             this.callSiteToEdges.set(calledge.getCallSite(),calledge);
-            if(this.calleeToEdges.has(calledge.getCallee())) {
-                let edges = this.calleeToEdges.get(calledge.getCallee())!;
-                edges.push(calledge);
-                this.calleeToEdges.set(calledge.getCallee(),edges);
+            if (calledge.getCallee() != null) {
+                if(this.calleeToEdges.has(calledge.getCallee()!)) {
+                    let edges = this.calleeToEdges.get(calledge.getCallee()!)!;
+                    edges.push(calledge);
+                    this.calleeToEdges.set(calledge.getCallee()!,edges);
+                }
+                else
+                    this.calleeToEdges.set(calledge.getCallee()!,[calledge]);
             }
-            else
-                this.calleeToEdges.set(calledge.getCallee(),[calledge]);
-
+            else {
+                // callee is undefined, library function call edge, only as the leaf node
+                // todo
+            }
             return true;
         }
         return false;
@@ -79,7 +84,7 @@ export class CallGraph {
                 callsites.forEach(cs => {
                     let edge = this.callSiteToEdges.get(cs);
                     if(edge != undefined) {
-                        let callee = edge.getCallee();
+                        let callee = edge.getCallee()!;
                         worklist.push(callee);
                         console.log(m.getSignature().toString() + " -> " + callee.getSignature().toString());
                     }

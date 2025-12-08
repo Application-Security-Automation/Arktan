@@ -370,17 +370,17 @@ export class ArkInstanceInvokeExpr extends AbstractInvokeExpr {
             }
         }
         //处理array库方法-----------------------------------------------------------------
-        else if(baseType instanceof ArrayType){
-            let cls = scene.NativeClass.get("array");
-            if(cls != undefined)
-                for (const method of cls.getMethods()) {
-                    if(method.getName() === methodName) {
-                        TypeInference.inferMethodReturnType(method);
-                        this.setMethodSignature(method.getSignature());
-                        return this;
-                    }
-                }
-        }  
+        // else if(baseType instanceof ArrayType){
+        //     let cls = scene.NativeClass.get("array");
+        //     if(cls != undefined)
+        //         for (const method of cls.getMethods()) {
+        //             if(method.getName() === methodName) {
+        //                 TypeInference.inferMethodReturnType(method);
+        //                 this.setMethodSignature(method.getSignature());
+        //                 return this;
+        //             }
+        //         }
+        // }
         //处理map库方法-----------------------------------------------------------------
         if(baseType instanceof ClassType && baseType.toString() === "@%unk/%unk: Map"){
             let cls = scene.NativeClass.get("map")!;
