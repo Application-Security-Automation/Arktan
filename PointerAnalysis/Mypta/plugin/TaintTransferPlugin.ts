@@ -49,9 +49,12 @@ export class TaintTransferPlugin implements Plugin {
                 console.log(methodsignature);
                 let difyClient: DifyWorkflowClient | null = new DifyWorkflowClient("app-KRXVPDTeeG08AHR84O579DiW");
                 let response = difyClient.invokeWorkflowSync(methodsignature);
+                
                 if (response) {
+                    console.log(response.data.outputs.text);
                     // 提取JSON数组
                     const jsonArray = this.extractJsonArray(response.data.outputs.text);
+                    
                     if (jsonArray) {
                         // 处理提取的数组
                         jsonArray.forEach(item => {

@@ -232,14 +232,14 @@ export class MyPointerAnalysis {
                 return callee;
             }
         }
-        // else if(obj instanceof ArrayObj){
-        //     let c = this.scene.NativeClass.get("array")!;
-        //     let method = invokestmt.getInvokeExpr().getMethodSignature();
-        //     let callee = c.getMethod(method);
-        //     if(callee != null) {
-        //         return callee;
-        //     }
-        // }
+        else if(obj instanceof ArrayObj){
+            let c = this.scene.NativeClass.get("array")!;
+            let method = invokestmt.getInvokeExpr().getMethodSignature();
+            let callee = c.getMethod(method);
+            if(callee != null) {
+                return callee;
+            }
+        }
         else if(obj.getType().toString() === "@%unk/%unk: Map"){
             let c = this.scene.NativeClass.get("map")!;
             let method = invokestmt.getInvokeExpr().getMethodSignature();
