@@ -48,9 +48,12 @@ export class SourcePlugin implements Plugin {
         }
     }
     onNewCallEdge(edge: CallEdge): void {
-        let source = this.callsources.get(edge.getCallee());
-        if(source != undefined) {
-            this.processCallSource(source,edge.getCallSite());
+        let callee = edge.getCallee();
+        if (callee != undefined) {
+            let source = this.callsources.get(callee);
+            if(source != undefined) {
+                this.processCallSource(source,edge.getCallSite());
+            }
         }
     }
     processCallSource(source: CallSource, cs: CallSite) {

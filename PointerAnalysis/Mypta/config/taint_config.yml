@@ -23,9 +23,10 @@ transfers:
   # - { method: "@ptatest/lib/lib.es5.d.ts: String.toLowerCase() : string", from: base, to: result }
   # - { method: "@ptatest/lib/lib.es2015.collection.d.ts: Map.set(K, V) : ThisType", from: 1, to: base }
   # - { method: "@ptatest/lib/lib.es2015.collection.d.ts: Map.get(K) : V|undefined", from: base, to: result }
+  # - { method: "@ptatest/lib/lib.es2015.collection.d.ts: Map.entries() : IterableIterator<[K, V]>", from: base, to: result }
   # - { method: "@ptatest/lib/lib.es2015.collection.d.ts: Set.add(T) : ThisType", from: 0, to: base }
-  - { method: "@ptatest/lib/lib.es5.d.ts: Array.toString() : string", from: base, to: result }
-  - { method: "@ptatest/lib/lib.es5.d.ts: Array.pop() : T|undefined", from: base, to: result }
-  - { method: "@ptatest/lib/lib.es5.d.ts: Array.push(T[]) : number", from: 0, to: base }
-  - { method: "@ptatest/lib/lib.es5.d.ts: Array.shift() : T|undefined", from: base, to: result }
+  # - { method: "@ptatest/lib/lib.es5.d.ts: Array.toString() : string", from: base, to: result }
+  # - { method: "@ptatest/lib/lib.es5.d.ts: Array.pop() : T|undefined", from: base, to: result }
+  # - { method: "@ptatest/lib/lib.es5.d.ts: Array.push(T[]) : number", from: 0, to: base }
+  # - { method: "@ptatest/lib/lib.es5.d.ts: Array.shift() : T|undefined", from: base, to: result }
   - { method: "@test/lib/lib.es5.d.ts: JSON.stringify(any, @test/lib/lib.es5.d.ts: JSON.%AM1(any, string, any) : any, string|number) : string", from: 0, to: result }

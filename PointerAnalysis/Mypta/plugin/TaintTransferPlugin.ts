@@ -7,6 +7,8 @@ import { ArkMethod } from "../../../Arkanalyzer/core/model/ArkMethod";
 import { CallEdge } from "../CallEdge";
 import { CallSite } from "../CallSite";
 import { TaintConfig } from "../config/TaintConfig";
+import { DifyWorkflowClient } from "../DifyWorkflowClient";
+import { IndexRef } from "../IndexRef";
 import { MyPointerAnalysis } from "../MyPointerAnalysis";
 import { ArrayObj, TaintObj } from "../Obj";
 import { PointerFlowEdge } from "../PointerFlowEdge";
@@ -16,6 +18,7 @@ import { Plugin } from "./Plugin";
 export class TaintTransferPlugin implements Plugin {
     private transfers : Map<ArkMethod, TaintTransfer[]> = new Map();
     private solver! : MyPointerAnalysis;
+    private IndexMap : Map<string, number> = new Map([["base",-1],["result",-2]]);
     setSolver(solver: MyPointerAnalysis): void {
         this.solver = solver;
     }
@@ -33,14 +36,50 @@ export class TaintTransferPlugin implements Plugin {
     }
     onNewCallEdge(edge: CallEdge): void {
         let callee = edge.getCallee();
-        if(callee.getName() === "stringify"){
-            callee;
-        }
-        if(this.transfers.has(callee)) {
-            this.transfers.get(callee)?.forEach(tf => {
-                this.processTaintTransfer(tf,edge.getCallSite());
-            })
-            
+        if (callee != undefined) {
+            if(this.transfers.has(callee)) {
+                this.transfers.get(callee)?.forEach(tf => {
+                    this.processTaintTransfer(tf,edge.getCallSite());
+                })
+            }
+            else if (callee.getBody() == undefined) {
+                // todo
+                let methodsignature = callee.getAllSignature()[0].toString();
+                methodsignature = methodsignature.split(':')[1] + ":" + methodsignature.split(':')[2]
+                console.log(methodsignature);
+                let difyClient: DifyWorkflowClient | null = new DifyWorkflowClient("app-KRXVPDTeeG08AHR84O579DiW");
+                let response = difyClient.invokeWorkflowSync(methodsignature);
+                
+                if (response) {
+                    console.log(response.data.outputs.text);
+                    // 提取JSON数组
+                    const jsonArray = this.extractJsonArray(response.data.outputs.text);
+                    
+                    if (jsonArray) {
+                        // 处理提取的数组
+                        jsonArray.forEach(item => {
+                            if (item.canTransfer) {
+                                // 根据from和to创建污点转移
+                                // 这里可以添加创建TaintTransfer的逻辑
+                                let from = this.IndexMap.get(item.from);
+                                let to = this.IndexMap.get(item.to);
+                                let fromindex = from != undefined ? new IndexRef(from) : new IndexRef(item.from);
+                                let toindex = to != undefined ? new IndexRef(to) : new IndexRef(item.to);
+                                let newtfs = new TaintTransfer(callee,fromindex,toindex);
+                                this.processTaintTransfer(newtfs,edge.getCallSite());
+                                let tfs = this.transfers.get(callee);
+                                if(tfs != undefined) {
+                                    tfs.push(newtfs);
+                                    this.transfers.set(newtfs.getMethod(),tfs);
+                                }
+                                else {
+                                    this.transfers.set(newtfs.getMethod(),[newtfs]);
+                                }
+                            }
+                        });
+                    }
+                }
+            }
         }
     }
     processTaintTransfer(tf: TaintTransfer, cs: CallSite) {
@@ -87,4 +126,23 @@ export class TaintTransferPlugin implements Plugin {
             return invoke.getArg(index);
         }
     }
+    private extractJsonArray(input: string): any[] | null {
+    try {
+        const startIndex = input.indexOf('[');
+        const endIndex = input.lastIndexOf(']');
+        
+        if (startIndex === -1 || endIndex === -1 || startIndex >= endIndex) {
+            console.error("无法在字符串中找到有效的JSON数组");
+            return null;
+        }
+        
+        const jsonString = input.substring(startIndex, endIndex + 1);
+        const jsonArray = JSON.parse(jsonString);
+        
+        return Array.isArray(jsonArray) ? jsonArray : null;
+    } catch (error) {
+        console.error("解析JSON时出错:", error);
+        return null;
+    }
+}
 }

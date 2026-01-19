@@ -817,7 +817,7 @@ export const ETS_COMPILER_OPTIONS = {
             decorator: 'Concurrent',
         },
         customComponent: 'CustomComponent',
-        libs: [],
+        libs: []
     },
 };
 

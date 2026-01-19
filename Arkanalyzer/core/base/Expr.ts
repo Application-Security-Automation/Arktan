@@ -380,7 +380,7 @@ export class ArkInstanceInvokeExpr extends AbstractInvokeExpr {
                         return this;
                     }
                 }
-        }  
+        }
         //处理map库方法-----------------------------------------------------------------
         if(baseType instanceof ClassType && baseType.toString() === "@%unk/%unk: Map"){
             let cls = scene.NativeClass.get("map")!;

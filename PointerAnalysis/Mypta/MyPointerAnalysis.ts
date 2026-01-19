@@ -17,7 +17,7 @@ import { PointerManager } from "./PointerManager";
 import { PointsToSet } from "./PointsToSet";
 import { pointerEntry, WorkList } from "./WorkList";
 import { PluginManager } from "./plugin/PluginManager";
-import { EntryPointPlugin } from "./plugin/EntryPointPlugin";
+//import { EntryPointPlugin } from "./plugin/EntryPointPlugin";
 import { TaintConfig } from "./config/TaintConfig";
 import { SourcePlugin } from "./plugin/SourcePlugin";
 import { SinkPlugin } from "./plugin/SinkPlugin";
@@ -42,7 +42,8 @@ export class MyPointerAnalysis {
         this.cg = new CallGraph(this.ptrManager);
         this.entryPoints = new Array();
         this.plugin = new PluginManager();
-        this.config = new TaintConfig(s,"./Mypta/config/taint_config.yml");
+        //this.config = new TaintConfig(s,"./Mypta/config/taint_config.yml");
+        this.config = new TaintConfig(s,"./PointerAnalysis/Mypta/config/taint_config.yml");
         this.specialInvokeStmt = new Array();
     }
     start() {
@@ -51,7 +52,7 @@ export class MyPointerAnalysis {
         //this.cg.getCallGraph();
     }
     init() {
-        this.plugin.addPlugin(new EntryPointPlugin());
+        //this.plugin.addPlugin(new EntryPointPlugin());
         this.plugin.addPlugin(new TestPlugin());
         this.plugin.addPlugin(new SourcePlugin(this.config));
         this.plugin.addPlugin(new SinkPlugin(this.config));
@@ -95,6 +96,10 @@ export class MyPointerAnalysis {
                                 if(thisvar != null) {
                                     this.addVarPointsTo(this.ptrManager.getCSVar(thisvar),obj);
                                 }
+                            }
+                            else {
+                                //handle lib function
+                                this.addCallEdge(new CallEdge("libfuncinvoke",this.ptrManager.getCallSite(invokestmt)!));
                             }
                         })
                     }
@@ -235,8 +240,8 @@ export class MyPointerAnalysis {
                 return callee;
             }
         }
-        else if(obj.getType().toString() === "@%unk/%unk: Set"){
-            let c = this.scene.NativeClass.get("set")!;
+        else if(obj.getType().toString() === "@%unk/%unk: Map"){
+            let c = this.scene.NativeClass.get("map")!;
             let method = invokestmt.getInvokeExpr().getMethodSignature();
             let callee = c.getMethod(method);
             if(callee != null) {
@@ -308,34 +313,33 @@ export class MyPointerAnalysis {
             return;
         }
         let method = calledge.getCallee();
-        if(method.getName() === "f") {
-            method;
-        }
-        this.addMethod(method);
-        //处理方法参数指针传播
-        let args = calledge.getCallSite().getCallSite().getInvokeExpr().getArgs();
-        let params = method.getParameterInstances();
-        for(let i=0; i<params.length; i++) {
-            let edge = new PointerFlowEdge(this.ptrManager.getCSVar(args[i]), this.ptrManager.getCSVar(params[i]));
-            this.addPFGEdge(edge);
-        }
-        if(method.getDeclaringArkClass().getName() != "String" && method.getDeclaringArkClass().getName() != "Map" && method.getDeclaringArkClass().getName() != "Set" && method.getDeclaringArkClass().getName() != "Array" && method.getDeclaringArkClass().getName() != "JSON") {
-            //处理方法返回值指针传播
-            if(calledge.getCallSite().getCallSite() instanceof ArkAssignStmt) {
-                let lhs = (calledge.getCallSite().getCallSite() as unknown as ArkAssignStmt).getLeftOp();
-                method.getReturnStmt().forEach(returnstmt => {
-                    let returnvar = (returnstmt as ArkReturnStmt).getOp();
-                    //处理箭头函数以及闭包
-                    if(returnvar.getType() instanceof FunctionType) {
-                        let obj : Obj | null = new FunctionObj(returnstmt);
-                        let csvar = this.ptrManager.getCSVar(returnvar);
-                        if(obj != null) {
-                            this.addVarPointsTo(csvar, obj);
+        if (method != undefined) { // no lib function
+            this.addMethod(method);
+            //处理方法参数指针传播
+            let args = calledge.getCallSite().getCallSite().getInvokeExpr().getArgs();
+            let params = method.getParameterInstances();
+            for(let i=0; i<params.length; i++) {
+                let edge = new PointerFlowEdge(this.ptrManager.getCSVar(args[i]), this.ptrManager.getCSVar(params[i]));
+                this.addPFGEdge(edge);
+            }
+            if(method.getDeclaringArkClass().getName() != "String" && method.getDeclaringArkClass().getName() != "Map" && method.getDeclaringArkClass().getName() != "Set" && method.getDeclaringArkClass().getName() != "Array" && method.getDeclaringArkClass().getName() != "JSON") {
+                //处理方法返回值指针传播
+                if(calledge.getCallSite().getCallSite() instanceof ArkAssignStmt) {
+                    let lhs = (calledge.getCallSite().getCallSite() as unknown as ArkAssignStmt).getLeftOp();
+                    method.getReturnStmt().forEach(returnstmt => {
+                        let returnvar = (returnstmt as ArkReturnStmt).getOp();
+                        //处理箭头函数以及闭包
+                        if(returnvar.getType() instanceof FunctionType) {
+                            let obj : Obj | null = new FunctionObj(returnstmt);
+                            let csvar = this.ptrManager.getCSVar(returnvar);
+                            if(obj != null) {
+                                this.addVarPointsTo(csvar, obj);
+                            }
                         }
-                    }
-                    let edge = new PointerFlowEdge(this.ptrManager.getCSVar(returnvar), this.ptrManager.getCSVar(lhs));
-                    this.addPFGEdge(edge);
-                })
+                        let edge = new PointerFlowEdge(this.ptrManager.getCSVar(returnvar), this.ptrManager.getCSVar(lhs));
+                        this.addPFGEdge(edge);
+                    })
+                }
             }
         }
         

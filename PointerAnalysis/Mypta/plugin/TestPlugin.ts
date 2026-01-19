@@ -1,4 +1,5 @@
 import { MyPointerAnalysis } from "../MyPointerAnalysis";
+import { TaintObj } from "../Obj";
 import { Plugin } from "./Plugin";
 
 export class TestPlugin implements Plugin {
@@ -10,12 +11,12 @@ export class TestPlugin implements Plugin {
         //将待测试case的测试方法都添加到入口方法并标记source
         this.solver.scene.getMethods().forEach(m => {
             //if(m.getName().includes("_") && m.getSignature().toString().includes("lambda_expression")) {
-            if(m.getSignature().getMethodSubSignature().getMethodName().startsWith("taintmain")) {
+            if(m.getSignature().getMethodSubSignature().getMethodName().startsWith("string_lib_func_001_T")) {
                 this.solver.cg.addEntryMethods(m);
                 this.solver.entryPoints.push(m);
-            //     let param = m.getParameterInstances()[0];
-            //     let taintObj = new TaintObj(m.getSignature().toString()+"/param"+0,m.getParameterInstances()[0].getType());
-            //     this.solver.addVarPointsTo(this.solver.ptrManager.getCSVar(param),taintObj);
+                let param = m.getParameterInstances()[0];
+                let taintObj = new TaintObj(m.getSignature().toString()+"/param"+0,m.getParameterInstances()[0].getType());
+                this.solver.addVarPointsTo(this.solver.ptrManager.getCSVar(param),taintObj);
             }
         })
         
