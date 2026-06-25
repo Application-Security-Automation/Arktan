@@ -17,12 +17,12 @@ import { PointerManager } from "./PointerManager";
 import { PointsToSet } from "./PointsToSet";
 import { pointerEntry, WorkList } from "./WorkList";
 import { PluginManager } from "./plugin/PluginManager";
-//import { EntryPointPlugin } from "./plugin/EntryPointPlugin";
+import { EntryPointPlugin } from "./plugin/EntryPointPlugin";
 import { TaintConfig } from "./config/TaintConfig";
 import { SourcePlugin } from "./plugin/SourcePlugin";
 import { SinkPlugin } from "./plugin/SinkPlugin";
 import { TaintTransferPlugin } from "./plugin/TaintTransferPlugin";
-import { TestPlugin } from "./plugin/TestPlugin";
+//import { TestPlugin } from "./plugin/TestPlugin";
 
 export class MyPointerAnalysis {
     entryPoints: ArkMethod[];
@@ -52,8 +52,8 @@ export class MyPointerAnalysis {
         //this.cg.getCallGraph();
     }
     init() {
-        //this.plugin.addPlugin(new EntryPointPlugin());
-        this.plugin.addPlugin(new TestPlugin());
+        this.plugin.addPlugin(new EntryPointPlugin());
+        //this.plugin.addPlugin(new TestPlugin());
         this.plugin.addPlugin(new SourcePlugin(this.config));
         this.plugin.addPlugin(new SinkPlugin(this.config));
         this.plugin.addPlugin(new TaintTransferPlugin(this.config));
@@ -129,10 +129,13 @@ export class MyPointerAnalysis {
                         diff.getObjects().forEach(obj => {
                             //处理多层field
                             if(field.toString().includes("@%unk/%unk:")) {
-                                let cls = this.scene.getClass((obj.getType() as ClassType).getClassSignature());
-                                let fieldsig = cls?.getFieldWithName(field.getFieldName())?.getSignature();
-                                if(fieldsig != undefined)
-                                    field.setFieldSignature(fieldsig);
+                                let objType = obj.getType();
+                                if(objType instanceof ClassType) {
+                                    let cls = this.scene.getClass(objType.getClassSignature());
+                                    let fieldsig = cls?.getFieldWithName(field.getFieldName())?.getSignature();
+                                    if(fieldsig != undefined)
+                                        field.setFieldSignature(fieldsig);
+                                }
                             }
                             this.addPFGEdge(new PointerFlowEdge(this.ptrManager.getInstanceField(obj,field),this.ptrManager.getCSVar(lhs)));
                         })
@@ -140,9 +143,10 @@ export class MyPointerAnalysis {
                     if(this.isFieldStroeStmt(stmt as ArkAssignStmt,localv)){
                         let storestmt = stmt as ArkAssignStmt;
                         let rhs = storestmt.getRightOp();
-                        if((rhs as Local).getDeclaringStmt() == null) {
+                        if(rhs instanceof Local && rhs.getDeclaringStmt() == null) {
+                            let rhsName = rhs.getName();
                             this.ptrManager.getVars().forEach(v => {
-                                if(v.getVar() instanceof Local && (v.getVar() as Local).getName() == (rhs as Local).getName()) {
+                                if(v.getVar() instanceof Local && (v.getVar() as Local).getName() == rhsName) {
                                     rhs = v.getVar();
                                 }
                             })
@@ -225,33 +229,33 @@ export class MyPointerAnalysis {
     }
     resolveCallByobj(obj: Obj, invokestmt: ArkInvokeStmt) : ArkMethod | null {
         if(obj instanceof StrConObj || obj.getType().toString() === "string") {
-            let c = this.scene.NativeClass.get("string")!;
+            let c = this.scene.NativeClass.get("string");
             let method = invokestmt.getInvokeExpr().getMethodSignature();
-            let callee = c.getMethod(method);
+            let callee = c?.getMethod(method);
             if(callee != null) {
                 return callee;
             }
         }
         else if(obj instanceof ArrayObj){
-            let c = this.scene.NativeClass.get("array")!;
+            let c = this.scene.NativeClass.get("array");
             let method = invokestmt.getInvokeExpr().getMethodSignature();
-            let callee = c.getMethod(method);
+            let callee = c?.getMethod(method);
             if(callee != null) {
                 return callee;
             }
         }
         else if(obj.getType().toString() === "@%unk/%unk: Map"){
-            let c = this.scene.NativeClass.get("map")!;
+            let c = this.scene.NativeClass.get("map");
             let method = invokestmt.getInvokeExpr().getMethodSignature();
-            let callee = c.getMethod(method);
+            let callee = c?.getMethod(method);
             if(callee != null) {
                 return callee;
             }
         }
         else if(obj.getType().toString() === "@%unk/%unk: Set"){
-            let c = this.scene.NativeClass.get("set")!;
+            let c = this.scene.NativeClass.get("set");
             let method = invokestmt.getInvokeExpr().getMethodSignature();
-            let callee = c.getMethod(method);
+            let callee = c?.getMethod(method);
             if(callee != null) {
                 return callee;
             }
@@ -276,13 +280,12 @@ export class MyPointerAnalysis {
         pts.getObjects().forEach(o => {
             if(o instanceof ArrayObj && o.getType() instanceof ArrayType) {
                 let arrtype = o.getType();
-                if(arrtype.getBaseType() instanceof AnyType) {
+                if(arrtype.getBaseType() instanceof AnyType && pointer instanceof CSVar) {
                     let csvar = pointer as CSVar;
-                    let type = (csvar.getType() as ArrayType);
-                    if(!(type.getBaseType() instanceof AnyType)) {
+                    let type = csvar.getType();
+                    if(type instanceof ArrayType && !(type.getBaseType() instanceof AnyType)) {
                         o.setType(type);
                     }
-                        
                 }
             }
         })
@@ -428,8 +431,8 @@ export class MyPointerAnalysis {
             }
         }
         else if(stmt.containsInvokeExpr() && stmt.getInvokeExpr()?.getMethodSignature().getMethodSubSignature().getMethodName() === "getCurrentLocation") {
-            let arg = stmt.getInvokeExpr()?.getArg(1)!;
-            if(arg.getType() instanceof FunctionType) {
+            let arg = stmt.getInvokeExpr()?.getArg(1);
+            if(arg != null && arg.getType() instanceof FunctionType) {
                 let func = (arg.getType() as FunctionType);
                 let f = this.scene.getMethod(func.getMethodSignature());
                 if(f != null) {

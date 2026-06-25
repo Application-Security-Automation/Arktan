@@ -360,14 +360,15 @@ export class ArkInstanceInvokeExpr extends AbstractInvokeExpr {
         }
         //处理string库方法-----------------------------------------------------------------
         else if(baseType instanceof StringType){
-            let cls = scene.NativeClass.get("string")!;
-            for (const method of cls.getMethods()) {
-                if(method.getName() === methodName) {
-                    TypeInference.inferMethodReturnType(method);
-                    this.setMethodSignature(method.getSignature());
-                    return this;
+            let cls = scene.NativeClass.get("string");
+            if(cls != undefined)
+                for (const method of cls.getMethods()) {
+                    if(method.getName() === methodName) {
+                        TypeInference.inferMethodReturnType(method);
+                        this.setMethodSignature(method.getSignature());
+                        return this;
+                    }
                 }
-            }
         }
         //处理array库方法-----------------------------------------------------------------
         else if(baseType instanceof ArrayType){
@@ -383,24 +384,26 @@ export class ArkInstanceInvokeExpr extends AbstractInvokeExpr {
         }
         //处理map库方法-----------------------------------------------------------------
         if(baseType instanceof ClassType && baseType.toString() === "@%unk/%unk: Map"){
-            let cls = scene.NativeClass.get("map")!;
-            for (const method of cls.getMethods()) {
-                if(method.getName() === methodName) {
-                    TypeInference.inferMethodReturnType(method);
-                    this.setMethodSignature(method.getSignature());
-                    return this;
+            let cls = scene.NativeClass.get("map");
+            if(cls != undefined)
+                for (const method of cls.getMethods()) {
+                    if(method.getName() === methodName) {
+                        TypeInference.inferMethodReturnType(method);
+                        this.setMethodSignature(method.getSignature());
+                        return this;
+                    }
                 }
-            }
         }
         //处理set库方法-----------------------------------------------------------------
         if(baseType instanceof ClassType && baseType.toString() === "@%unk/%unk: Set"){
-            let cls = scene.NativeClass.get("set")!;
-            for (const method of cls.getMethods()) {
-                if(method.getName() === methodName) {
-                    TypeInference.inferMethodReturnType(method);
-                    this.setMethodSignature(method.getSignature());
-                    return this;
-                }
+            let cls = scene.NativeClass.get("set");
+            if(cls != undefined)
+                for (const method of cls.getMethods()) {
+                    if(method.getName() === methodName) {
+                        TypeInference.inferMethodReturnType(method);
+                        this.setMethodSignature(method.getSignature());
+                        return this;
+                    }
             }
         }
         //处理json库方法-----------------------------------------------------------------

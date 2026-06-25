@@ -13,3 +13,10 @@ let a = new A(1,"zxf");
 let b = new A(1,"zxf");
 map.set(a,"aaa");
 console.log(map.get(a));
+
+
+let f : Function = f1;
+f1();
+function f1() {
+    console.log("f1");
+}    

@@ -46,7 +46,6 @@ export class TaintTransferPlugin implements Plugin {
                 // todo
                 let methodsignature = callee.getAllSignature()[0].toString();
                 methodsignature = methodsignature.split(':')[1] + ":" + methodsignature.split(':')[2]
-                console.log(methodsignature);
                 let difyClient: DifyWorkflowClient | null = new DifyWorkflowClient("app-KRXVPDTeeG08AHR84O579DiW");
                 let response = difyClient.invokeWorkflowSync(methodsignature);
                 
