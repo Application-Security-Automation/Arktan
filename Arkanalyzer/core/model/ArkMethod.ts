@@ -305,7 +305,11 @@ export class ArkMethod extends ArkBaseModel implements ArkExport {
     }
 
     public getReturnStmt(): Stmt[] {
-        return this.getCfg()!.getStmts().filter(stmt => stmt instanceof ArkReturnStmt);
+        const cfg = this.getCfg();
+        if (cfg == null) {
+            return [];
+        }
+        return cfg.getStmts().filter(stmt => stmt instanceof ArkReturnStmt);
     }
 
     public setViewTree(viewTree: ViewTree) {

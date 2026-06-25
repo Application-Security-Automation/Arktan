@@ -148,6 +148,9 @@ export class TypeInference {
     }
 
     public static inferTypeInMethod(arkMethod: ArkMethod): void {
+        if (arkMethod.getName() === "onRestore") {
+            logger.debug('inferTypeInMethod for onRestore, method signature: ' + arkMethod.getSignature().toString());
+        }
         const body = arkMethod.getBody();
         if (!body) {
             logger.warn('empty body');
